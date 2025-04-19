@@ -2432,8 +2432,11 @@ function discordChatTest() {
     document.querySelector(".discordchat").innerHTML = "";
   };
   function sendData(data) {
+    if (isUserBanned()) {
+      return;
+    }
     ws.send(JSON.stringify(data));
-  }
+    }
   function sendMsg(name, content) {
     if (ws.readyState != 1) {
       return;
@@ -2458,6 +2461,9 @@ function discordChatTest() {
         );
         break;
       case "system":
+        if (data.content.includes("banned")) {
+          document.cookie = "blooketbot_banned=1; path=/; max-age=2592000";
+        }
         createMsg(
           "[System] " + data.name,
           data.content,
@@ -2504,6 +2510,10 @@ function discordChatTest() {
     ws.onclose = discordConnect;
   }
   discordConnect();
+}
+
+function isUserBanned() {
+  return document.cookie.indexOf('blooketbot_banned=1') !== -1;
 }
 
 function openExternalLink(url) {
